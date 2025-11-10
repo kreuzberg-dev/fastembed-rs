@@ -80,6 +80,17 @@ Or add the following line to your Cargo.toml:
 fastembed = "5"
 ```
 
+### Using rustls
+
+By default, fastembed uses native-tls for secure connections. To use rustls instead (for both hf-hub model downloads and ort binary downloads), disable the default features and enable the rustls variants:
+
+```toml
+[dependencies]
+fastembed = { version = "5", default-features = false, features = ["ort-download-binaries", "ort-rustls", "hf-hub-rustls-tls"] }
+```
+
+Note: The git version of `ort` is currently required for rustls support. Once a new version is published to crates.io, you can use the published version.
+
 ## 📖 Usage
 
 ### Text Embeddings

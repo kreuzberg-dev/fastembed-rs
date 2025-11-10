@@ -7,7 +7,7 @@
 //! may not be the default output. This test is to ensure that the correct output key
 //! is used when generating embeddings.
 
-use std::{path::PathBuf, process};
+use std::{path::{Path, PathBuf}, process};
 
 use fastembed::{
     get_cache_dir, Pooling, QuantizationMode, TextEmbedding, TokenizerFiles,
@@ -30,12 +30,12 @@ fn has_optimum_cli() -> bool {
 /// The return error will not distinguish between a missing ``optimum-cli`` and a failed download.
 fn pull_model(
     model_name: &str,
-    output: &PathBuf,
+    output: &Path,
     pooling: Option<Pooling>,
 ) -> anyhow::Result<TextEmbedding> {
     eprintln!("Pulling {model_name} from the Hugging Face Hub...");
     process::Command::new("optimum-cli")
-        .args(&[
+        .args([
             "export",
             "onnx",
             "--model",
@@ -52,12 +52,12 @@ fn pull_model(
 }
 
 /// Load bytes from a file, with a nicer error message.
-fn load_bytes_from_file(path: &PathBuf) -> anyhow::Result<Vec<u8>> {
+fn load_bytes_from_file(path: &Path) -> anyhow::Result<Vec<u8>> {
     std::fs::read(path).map_err(|e| anyhow::anyhow!("Failed to read file at {:?}: {}", path, e))
 }
 
 /// Load a model from a local directory.
-fn load_model(output: &PathBuf, pooling: Option<Pooling>) -> anyhow::Result<TextEmbedding> {
+fn load_model(output: &Path, pooling: Option<Pooling>) -> anyhow::Result<TextEmbedding> {
     let model = UserDefinedEmbeddingModel {
         onnx_file: load_bytes_from_file(&output.join("model.onnx"))?,
         tokenizer_files: TokenizerFiles {
@@ -68,6 +68,7 @@ fn load_model(output: &PathBuf, pooling: Option<Pooling>) -> anyhow::Result<Text
         },
         pooling,
         quantization: QuantizationMode::None,
+        output_key: None,
     };
 
     TextEmbedding::try_new_from_user_defined(model, Default::default())
@@ -96,7 +97,7 @@ macro_rules! create_test {
                 "optimum-cli is not available. Please install it with `pip install optimum-cli`"
             );
 
-            let model = load_model(&output, $pooling).unwrap_or_else(|_| {
+            let mut model = load_model(&output, $pooling).unwrap_or_else(|_| {
                 pull_model(&model_name, &output, $pooling).expect("Failed to pull model")
             });
 
