@@ -52,6 +52,19 @@
  ```
 "#
 )]
+#[cfg(all(feature = "ort-download-binaries", feature = "ort-download-binaries-native"))]
+compile_error!(
+    "`ort-download-binaries` (Rustls) and `ort-download-binaries-native` (native-tls) cannot both be enabled"
+);
+#[cfg(all(feature = "ort-download-binaries", feature = "ort-native-tls"))]
+compile_error!(
+    "`ort-download-binaries` already enables Rustls TLS; enable `ort-download-binaries-native` instead of combining it with `ort-native-tls`"
+);
+#[cfg(all(feature = "ort-download-binaries-native", feature = "ort-rustls"))]
+compile_error!(
+    "`ort-download-binaries-native` already enables native-tls; disable `ort-rustls` to avoid mixing TLS backends"
+);
+
 
 mod common;
 mod image_embedding;

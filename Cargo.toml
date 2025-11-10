@@ -34,13 +34,14 @@ serde_json = { version = "1" }
 tokenizers = { version = "0.22.1", default-features = false, features = ["onig"] }
 
 [features]
-default = ["ort-download-binaries", "ort-native-tls", "hf-hub-native-tls"]
+default = ["ort-download-binaries", "hf-hub-rustls-tls"]
 
 hf-hub = ["dep:hf-hub", "hf-hub?/ureq"]
 hf-hub-native-tls = ["hf-hub", "hf-hub?/native-tls"]
 hf-hub-rustls-tls = ["hf-hub", "hf-hub?/rustls-tls"]
 
-ort-download-binaries = ["ort/download-binaries"]
+ort-download-binaries = ["ort/download-binaries", "ort/tls-rustls"]
+ort-download-binaries-native = ["ort/download-binaries", "ort/tls-native"]
 ort-load-dynamic = ["ort/load-dynamic"]
 ort-native-tls = ["ort/tls-native"]
 ort-rustls = ["ort/tls-rustls"]
